@@ -1,0 +1,87 @@
+schema: spec-driven
+
+context: |
+  Project: LTI – Talent Tracking System (ATS / Applicant Tracking System)
+  Domain: HR tech platform for managing candidates, job positions, and recruitment pipelines.
+
+  # Architecture
+  Full-stack monorepo with two independent packages: `frontend/` and `backend/`.
+  - Frontend: React 18 + TypeScript, bootstrapped with Create React App. Runs on port 3000.
+  - Backend: Node.js + Express + TypeScript. Runs on port 3010.
+  - Database: PostgreSQL 15 running in Docker via docker-compose. Port 5432.
+    - DB name: LTIdb | User: LTIdbUser | Password: from .env (DATABASE_URL)
+  - ORM: Prisma 5. Schema lives at backend/prisma/schema.prisma. NEVER use raw SQL — always use PrismaClient.
+  - API documentation: swagger-jsdoc + swagger-ui-express are installed; document all routes with JSDoc OpenAPI annotations.
+
+  # Tech stack (exact versions in package.json)
+  - TypeScript 4.9 (both frontend and backend)
+  - React 18, react-dom 18
+  - Express 4
+  - Prisma 5 (@prisma/client + prisma CLI)
+  - dotenv 16
+  - Jest 29 + ts-jest (backend tests), @testing-library/react 13 (frontend tests)
+  - Supertest 7 (backend integration tests)
+  - ESLint 9 + Prettier (backend); react-app ESLint config (frontend)
+
+  # Directory conventions
+  - Backend source: backend/src/
+    - Entry point: backend/src/index.ts (exports `app` and default `prisma`)
+    - Routes: backend/src/routes/<resource>.routes.ts
+    - Controllers: backend/src/controllers/<resource>.controller.ts
+    - Services: backend/src/services/<resource>.service.ts (business logic, all DB access here)
+    - Middleware: backend/src/middleware/<name>.middleware.ts
+    - Types/interfaces: backend/src/types/<name>.ts
+  - Backend tests: backend/src/tests/
+  - Frontend source: frontend/src/
+    - Components: frontend/src/components/<ComponentName>/index.tsx
+    - Pages: frontend/src/pages/<PageName>/index.tsx
+    - Services (API calls): frontend/src/services/<resource>.service.ts
+    - Types: frontend/src/types/<name>.ts
+  - Frontend tests: frontend/src/tests/
+
+  # Coding conventions
+  - All code is TypeScript. No plain .js files in src/.
+  - Use async/await; no raw Promise chains.
+  - Express route handlers must be typed with Request, Response, NextFunction from 'express'.
+  - Prisma operations belong in service files, never directly in controllers or routes.
+  - Use named exports for functions; default export only for the main module export (e.g., `export const app`).
+  - Environment variables are loaded via dotenv in backend/src/index.ts. Access via process.env.<VAR>.
+  - Error handling: use next(err) to forward errors to the global error middleware in index.ts.
+  - No console.log in production code; use console.error only inside error handlers.
+  - Formatting: Prettier with backend/.prettierrc settings. ESLint must pass before committing.
+
+  # Database / Prisma rules
+  - Prisma schema: backend/prisma/schema.prisma. Generator: prisma-client-js. Provider: postgresql.
+  - After modifying the schema, run: `npx prisma migrate dev --name <description>` (in backend/).
+  - Import PrismaClient from the singleton at backend/src/index.ts (`import prisma from '../index'`), not by instantiating a new PrismaClient in each file.
+  - Current models: User (id Int PK autoincrement, email String unique, name String?).
+    Domain models to be added: Candidate, Position, Application, Interview, etc.
+
+  # API conventions
+  - RESTful routes. Base path: /api/v1/<resource>
+  - HTTP status codes: 200 OK, 201 Created, 400 Bad Request, 404 Not Found, 500 Internal Server Error.
+  - All responses return JSON. Error shape: { error: string, details?: any }
+  - Document every route with swagger-jsdoc JSDoc comments above the route handler.
+
+  # Running the project
+  - Start DB: `docker-compose up -d` (from project root)
+  - Start backend: `cd backend && npm run dev`
+  - Start frontend: `cd frontend && npm start`
+  - Run backend tests: `cd backend && npm test`
+  - Run frontend tests: `cd frontend && npm test`
+
+  # Backend implementation guidelines
+  For any change touching backend/, read agent-specs/backend.md before proposing or
+  implementing. It defines the layer map, code patterns, security rules, Prisma conventions,
+  and testing requirements (TDD, 100% coverage target, per-layer test cases).
+
+rules:
+  proposal:
+    - State which layer is affected (route / controller / service / model / frontend component).
+    - Include the Prisma migration name if schema changes are involved.
+    - List all new files and their exact paths before describing changes.
+    - Identify any new environment variables required.
+  tasks:
+    - Each task must map to a single file or a single Prisma model change.
+    - Include the shell command needed to apply any migration.
+    - Mark tasks that require a frontend change separately from backend tasks.
