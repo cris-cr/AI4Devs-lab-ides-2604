@@ -1,11 +1,13 @@
 import request from 'supertest';
 import { app } from '../index';
-import { Request, Response, NextFunction } from 'express'; // Import the necessary types
+import * as service from '../services/candidate.service';
 
-describe('GET /', () => {
-    it('responds with Hello World!', async () => {
-        const response = await request(app).get('/');
-        expect(response.statusCode).toBe(200);
-        expect(response.text).toBe('Hello World!');
-    });
+jest.mock('../services/candidate.service');
+
+describe('app health', () => {
+  it('serves the candidates API at /api/v1/candidates', async () => {
+    (service.findAll as jest.Mock).mockResolvedValue([]);
+    const response = await request(app).get('/api/v1/candidates');
+    expect(response.statusCode).toBe(200);
+  });
 });

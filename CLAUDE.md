@@ -7,6 +7,7 @@ Before working on any part of this codebase, read the relevant spec from `agent-
 | Scope | Spec file |
 |---|---|
 | Any file inside `backend/` | `agent-specs/backend.md` |
+| Any file inside `frontend/` | `agent-specs/frontend.md` |
 
 These files define the layer structure, code patterns, security requirements, and test conventions for this project. Apply them without being asked.
 

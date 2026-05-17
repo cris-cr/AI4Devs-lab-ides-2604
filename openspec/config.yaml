@@ -75,6 +75,11 @@ context: |
   implementing. It defines the layer map, code patterns, security rules, Prisma conventions,
   and testing requirements (TDD, 100% coverage target, per-layer test cases).
 
+  # Frontend implementation guidelines
+  For any change touching frontend/, read agent-specs/frontend.md before proposing or
+  implementing. It defines the layer map, component conventions, state management patterns,
+  service layer rules, TypeScript requirements, and testing requirements.
+
 rules:
   proposal:
     - State which layer is affected (route / controller / service / model / frontend component).
